@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[EDSystemsWithCoordinates]
+﻿CREATE TABLE [dbo].[tblEDSystemsWithCoordinates]
 (
     [Id] INT NOT NULL, 
     [Id64] BIGINT NULL, 
@@ -11,4 +11,4 @@
 
 GO
 
-CREATE UNIQUE CLUSTERED INDEX [IX_EDSystemsWithCoordinates_Name] ON [dbo].[EDSystemsWithCoordinates] ([Name])
+CREATE UNIQUE CLUSTERED INDEX [IX_EDSystemsWithCoordinates_Name] ON [dbo].[tblEDSystemsWithCoordinates] ([Name])

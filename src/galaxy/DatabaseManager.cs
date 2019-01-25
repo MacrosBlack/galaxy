@@ -1,17 +1,19 @@
-﻿using Galaxy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace galaxy
+namespace Galaxy
 {
-    public class DatabaseManager
+    public class DatabaseManager: IDisposable
     {
         public DirectoryInfo DatabasePath { get; private set; }
-        public string ConnectionString { get; private set; }
+        public static int RowsAdded = 0;
+        private SqlConnection _connection;
+        
 
         public DatabaseManager(string databasePath)
         {
@@ -21,7 +23,8 @@ namespace galaxy
             }
 
             DatabasePath = new DirectoryInfo(databasePath);
-            ConnectionString = @"Data Source=(LocalDB)\EDMaster;Initial Catalog=EDSystems";
+            _connection = new SqlConnection(@"Data Source=(LocalDB)\EDMaster;Initial Catalog=EDSystems");
+            _connection.Open();
         }
 
         /// <summary>
@@ -65,12 +68,11 @@ namespace galaxy
             return true;
         }
 
-        public async Task Add10SystemsAsync(List<EdsmSystem> systems)
+        public async Task Add10SystemsAsync(int workerId, List<EdsmSystem> systems)
         {
-            using (var connection = new SqlConnection(ConnectionString))
-            using (var command = new SqlCommand("[dbo].[AddSystemWithCoordinates]", connection))
+            Console.WriteLine($"Adding 10 systems from worker:{workerId}");
+            using (var command = new SqlCommand("[dbo].[prcAdd10SystemsWithCoordinates]", _connection))
             {
-                await connection.OpenAsync();
                 command.CommandType = CommandType.StoredProcedure;
                 for (int i = 0; i < 10; i++)
                 {
@@ -85,18 +87,17 @@ namespace galaxy
                     }
 
                     command.Parameters.AddWithValue($"Date{i}", systems[i].Date);
-                    await command.ExecuteNonQueryAsync();
-                    command.Parameters.Clear();
                 }
+
+                await command.ExecuteNonQueryAsync();
+                Interlocked.Add(ref RowsAdded, 10);
             }
         }
 
         public async Task AddSystemAsync(EdsmSystem system)
         {
-            using (var connection = new SqlConnection(ConnectionString))
-            using (var command = new SqlCommand("[dbo].[AddSystemWithCoordinates]", connection))
+            using (var command = new SqlCommand("[dbo].[prcAddSystemWithCoordinates]", _connection))
             {
-                await connection.OpenAsync();
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("Id", system.Id);
                 command.Parameters.AddWithValue("Id64", system.Id64);
@@ -110,7 +111,40 @@ namespace galaxy
 
                 command.Parameters.AddWithValue($"Date", system.Date);
                 await command.ExecuteNonQueryAsync();
-                command.Parameters.Clear();
+            }
+        }
+
+        public async Task UpdateProgress(string fileName, Int64 rowsProcessed)
+        {
+            using (var command = new SqlCommand("[dbo].[prcUpdateProgress]", _connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("fileName", fileName);
+                command.Parameters.AddWithValue("RowsProcessed", rowsProcessed);
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task<Int64> GetProgress(string fileName)
+        {
+            using (var command = new SqlCommand("[dbo].[prcGetProgress]", _connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("FileName", fileName);
+                int rowsProcessed = 0;
+                command.Parameters.AddWithValue("RowsProcessed", rowsProcessed).Direction = ParameterDirection.Output;
+                await command.ExecuteNonQueryAsync();
+                return Convert.ToInt64(command.Parameters["RowsProcessed"].Value);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_connection != null)
+            {
+                _connection.Close();
+                _connection.Dispose();
+                _connection = null;
             }
         }
     }

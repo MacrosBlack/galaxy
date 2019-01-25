@@ -60,13 +60,20 @@
     <Folder Include="Properties" />
     <Folder Include="Tables" />
     <Folder Include="StoredProcedures" />
+    <Folder Include="Scripts" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\tblEDSystemsWithCoordinates.sql" />
+    <Build Include="StoredProcedures\prcAdd10SystemsWithCoordinates.sql" />
     <Build Include="StoredProcedures\prcAddSystemWithCoordinates.sql" />
-    <Build Include="StoredProcedures\prcAdd10SystemWithCoordinates.sql" />
+    <Build Include="StoredProcedures\prcGetProgress.sql" />
+    <Build Include="Tables\tblSystemsProgress.sql" />
+    <Build Include="StoredProcedures\prcUpdateProgress.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="EDDB.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="Scripts\DropObjects.sql" />
   </ItemGroup>
 </Project>

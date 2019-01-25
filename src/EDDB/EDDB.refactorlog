@@ -14,4 +14,18 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="Id64" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="2beaabed-6ac4-4c29-9b12-9d4304dcc294" ChangeDateTime="01/25/2019 19:33:38">
+    <Property Name="ElementName" Value="[dbo].[tblSystemsProgress].[NumberOfRows]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[tblSystemsProgress]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="RowNumber" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="6ec4bcf8-8998-4107-a997-fbde488648c5" ChangeDateTime="01/25/2019 20:00:53">
+    <Property Name="ElementName" Value="[dbo].[tblSystemsProgress].[RowNumber]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[tblSystemsProgress]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="RowsProcessed" />
+  </Operation>
 </Operations>
