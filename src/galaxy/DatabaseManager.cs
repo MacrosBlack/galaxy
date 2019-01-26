@@ -11,9 +11,8 @@ namespace Galaxy
     public class DatabaseManager: IDisposable
     {
         public DirectoryInfo DatabasePath { get; private set; }
-        public static int RowsAdded = 0;
+        public static long RowsAdded = 0;
         private SqlConnection _connection;
-        
 
         public DatabaseManager(string databasePath)
         {
@@ -94,7 +93,7 @@ namespace Galaxy
             }
         }
 
-        public async Task AddSystemAsync(EdsmSystem system)
+        public async Task AddSystemAsync(int workerId, EdsmSystem system)
         {
             using (var command = new SqlCommand("[dbo].[prcAddSystemWithCoordinates]", _connection))
             {

@@ -10,11 +10,18 @@
 --------------------------------------------------------------------------------------
 */
 DROP PROCEDURE IF EXISTS [dbo].[prcAdd10SystemsWithCoordinates];
+
 GO
+
 DROP PROCEDURE IF EXISTS [dbo].[prcAddSystemWithCoordinates];
+
 GO
+
 DROP PROCEDURE IF EXISTS [dbo].[prcGetProgress];
+
 GO
+
 DROP PROCEDURE IF EXISTS [dbo].[prcUpdateProgress];
+
 GO
 

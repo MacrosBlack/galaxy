@@ -5,3 +5,5 @@
     [RowsProcessed] BIGINT NOT NULL, 
     [Date] DATETIME NOT NULL DEFAULT GETDATE()
 )
+
+GO

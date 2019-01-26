@@ -22,9 +22,9 @@ namespace Galaxy
             var write10Rows = new Stopwatch();
 
             var dbMgr = new DatabaseManager(@"d:\Data\Galaxy");
-            var previousRowsProcessed = 0; // await dbMgr.GetProgress(SystemsWithCoordinates);
-            var systemQueue = new BlockingCollection<EdsmSystem>(1000);
-            for (int j = 1; j < 11; j++)
+            DatabaseManager.RowsAdded = await dbMgr.GetProgress(SystemsWithCoordinates);
+            var systemQueue = new BlockingCollection<EdsmSystem>(500);
+            for (int j = 1; j < 6; j++)
             {
                 AddWorker(j, systemQueue, new DatabaseManager(@"d:\Data\Galaxy"));
             }
@@ -67,7 +67,7 @@ namespace Galaxy
 
                     foreach (var system in systems)
                     {
-                        await dbMgr.AddSystemAsync(system);
+                        await dbMgr.AddSystemAsync(0, system);
                     }
                 }
                 catch (JsonReaderException ex)
