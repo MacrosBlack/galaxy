@@ -69,11 +69,25 @@
     <Build Include="StoredProcedures\prcGetProgress.sql" />
     <Build Include="Tables\tblSystemsProgress.sql" />
     <Build Include="StoredProcedures\prcUpdateProgress.sql" />
+    <None Include="Scripts\ShrinkLog.sql">
+      <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="EDDB.refactorlog" />
   </ItemGroup>
   <ItemGroup>
-    <PreDeploy Include="Scripts\DropObjects.sql" />
+    <None Include="Scripts\DropObjects.sql">
+      <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Script.PreDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\CreateDB.sql">
+      <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\Script.PostDeployment.sql" />
   </ItemGroup>
 </Project>

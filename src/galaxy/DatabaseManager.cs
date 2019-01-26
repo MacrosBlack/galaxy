@@ -8,13 +8,15 @@ using System.Threading.Tasks;
 
 namespace Galaxy
 {
-    public class DatabaseManager: IDisposable
+    public class DatabaseManager : IDisposable
     {
         public DirectoryInfo DatabasePath { get; private set; }
         public static long RowsAdded = 0;
-        private SqlConnection _connection;
+        public SqlConnection Connection;
+        public SqlBulkCopy Batch;
+        public DataTable ImportDataTable;
 
-        public DatabaseManager(string databasePath)
+        public DatabaseManager(string databasePath, string tableName)
         {
             if (!Directory.Exists(databasePath))
             {
@@ -22,8 +24,20 @@ namespace Galaxy
             }
 
             DatabasePath = new DirectoryInfo(databasePath);
-            _connection = new SqlConnection(@"Data Source=(LocalDB)\EDMaster;Initial Catalog=EDSystems");
-            _connection.Open();
+            Connection = new SqlConnection(@"Data Source=(LocalDB)\EDMaster;Initial Catalog=EDSystems");
+            Connection.Open();
+            Batch = new SqlBulkCopy(Connection);
+            Batch.NotifyAfter = 10000;
+            Batch.SqlRowsCopied += (object s, SqlRowsCopiedEventArgs e) => { Console.WriteLine($"{e.RowsCopied} rows copied"); };
+            Batch.DestinationTableName = tableName;
+            ImportDataTable = new DataTable(tableName);
+            ImportDataTable.Columns.Add("Id", typeof(long));
+            ImportDataTable.Columns.Add("Id64", typeof(long));
+            ImportDataTable.Columns.Add("Name", typeof(string));
+            ImportDataTable.Columns.Add("X", typeof(double));
+            ImportDataTable.Columns.Add("Y", typeof(double));
+            ImportDataTable.Columns.Add("Z", typeof(double));
+            ImportDataTable.Columns.Add("Date", typeof(DateTime));
         }
 
         /// <summary>
@@ -53,8 +67,8 @@ namespace Galaxy
             }
 
             var str = $@"CREATE DATABASE {databaseName} ON PRIMARY (NAME = {databaseName}, FILENAME = '{DatabasePath}\{databaseName}.mdf', ";
-            str += $"SIZE = 100Mb, MAXSIZE = 10Gb, FILEGROWTH = 50%) LOG ON (NAME = {databaseName}_Log, ";
-            str += $@" FILENAME = '{DatabasePath}\{databaseName}.ldf', SIZE = 10MB, MAXSIZE = 500MB, FILEGROWTH = 20%)";
+            str += $"SIZE = 500Mb, MAXSIZE = 10Gb, FILEGROWTH = 20%) LOG ON (NAME = {databaseName}_Log, ";
+            str += $@" FILENAME = '{DatabasePath}\{databaseName}.ldf', SIZE = 10MB, MAXSIZE = 10Gb, FILEGROWTH = 20%)";
 
             using (var connection = new SqlConnection(@"Data Source=(LocalDB)\EDMaster;Initial Catalog=master"))
             using (var command = new SqlCommand(str, connection))
@@ -70,7 +84,7 @@ namespace Galaxy
         public async Task Add10SystemsAsync(int workerId, List<EdsmSystem> systems)
         {
             Console.WriteLine($"Adding 10 systems from worker:{workerId}");
-            using (var command = new SqlCommand("[dbo].[prcAdd10SystemsWithCoordinates]", _connection))
+            using (var command = new SqlCommand("[dbo].[prcAdd10SystemsWithCoordinates]", Connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 for (int i = 0; i < 10; i++)
@@ -95,7 +109,7 @@ namespace Galaxy
 
         public async Task AddSystemAsync(int workerId, EdsmSystem system)
         {
-            using (var command = new SqlCommand("[dbo].[prcAddSystemWithCoordinates]", _connection))
+            using (var command = new SqlCommand("[dbo].[prcAddSystemWithCoordinates]", Connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("Id", system.Id);
@@ -115,7 +129,7 @@ namespace Galaxy
 
         public async Task UpdateProgress(string fileName, Int64 rowsProcessed)
         {
-            using (var command = new SqlCommand("[dbo].[prcUpdateProgress]", _connection))
+            using (var command = new SqlCommand("[dbo].[prcUpdateProgress]", Connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("fileName", fileName);
@@ -126,7 +140,7 @@ namespace Galaxy
 
         public async Task<Int64> GetProgress(string fileName)
         {
-            using (var command = new SqlCommand("[dbo].[prcGetProgress]", _connection))
+            using (var command = new SqlCommand("[dbo].[prcGetProgress]", Connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("FileName", fileName);
@@ -137,13 +151,43 @@ namespace Galaxy
             }
         }
 
+        public async Task<HashSet<int>> GetAllNamesAsHashCodeAsync(DatabaseManager dbMgr)
+        {
+            var ids = new HashSet<int>();
+            using (var command = new SqlCommand("SELECT [Name] FROM [dbo].[tblEDSystemsWithCoordinates] WITH (NOLOCK)", dbMgr.Connection))
+            {
+                command.CommandType = CommandType.Text;
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (reader.Read())
+                    {
+                        var hashCode = ((IDataRecord)reader).GetString(0).GetHashCode();
+                        if (ids.Contains(hashCode))
+                        {
+                            continue;
+                        }
+
+                        ids.Add(hashCode);
+                    }
+                }
+            }
+
+            return ids;
+        }
+
         public void Dispose()
         {
-            if (_connection != null)
+            if (Batch != null)
             {
-                _connection.Close();
-                _connection.Dispose();
-                _connection = null;
+                Batch.Close();
+                Batch = null;
+            }
+
+            if (Connection != null)
+            {
+                Connection.Close();
+                Connection.Dispose();
+                Connection = null;
             }
         }
     }

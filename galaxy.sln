@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Galaxy", "src\galaxy\Galaxy
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "EDDB", "src\EDDB\EDDB.sqlproj", "{90A512FF-E153-401C-BE28-D860930B9A05}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Downloader", "Downloader\Downloader.csproj", "{17DE9B1F-BB0E-4740-9DCE-FB6FBBDE9A5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{90A512FF-E153-401C-BE28-D860930B9A05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90A512FF-E153-401C-BE28-D860930B9A05}.Release|Any CPU.Build.0 = Release|Any CPU
 		{90A512FF-E153-401C-BE28-D860930B9A05}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{17DE9B1F-BB0E-4740-9DCE-FB6FBBDE9A5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17DE9B1F-BB0E-4740-9DCE-FB6FBBDE9A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17DE9B1F-BB0E-4740-9DCE-FB6FBBDE9A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17DE9B1F-BB0E-4740-9DCE-FB6FBBDE9A5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +38,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{80522A6E-56D4-4D9E-B083-45B268EBE2E8} = {FF25CDB3-5987-4C84-872F-67FE00DED4A4}
 		{90A512FF-E153-401C-BE28-D860930B9A05} = {FF25CDB3-5987-4C84-872F-67FE00DED4A4}
+		{17DE9B1F-BB0E-4740-9DCE-FB6FBBDE9A5D} = {FF25CDB3-5987-4C84-872F-67FE00DED4A4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BA4CCF24-3257-4BFA-B703-5FC38DE44476}

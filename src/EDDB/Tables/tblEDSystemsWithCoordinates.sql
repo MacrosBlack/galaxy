@@ -10,7 +10,3 @@
 )
 
 GO
-
-CREATE UNIQUE CLUSTERED INDEX [IX_EDSystemsWithCoordinates_Name] ON [dbo].[tblEDSystemsWithCoordinates] ([Name])
-
-GO
