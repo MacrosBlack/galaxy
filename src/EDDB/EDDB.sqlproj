@@ -81,6 +81,7 @@
       <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
     </None>
     <None Include="Scripts\Script.PreDeployment.sql" />
+    <None Include="Scripts\Misc.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\CreateDB.sql">
