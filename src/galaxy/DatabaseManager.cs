@@ -27,17 +27,48 @@ namespace Galaxy
             Connection = new SqlConnection(@"Data Source=(LocalDB)\EDMaster;Initial Catalog=EDSystems");
             Connection.Open();
             Batch = new SqlBulkCopy(Connection);
-            Batch.NotifyAfter = 10000;
-            Batch.SqlRowsCopied += (object s, SqlRowsCopiedEventArgs e) => { Console.WriteLine($"{e.RowsCopied} rows copied"); };
+            Batch.NotifyAfter = 500;
             Batch.DestinationTableName = tableName;
-            ImportDataTable = new DataTable(tableName);
-            ImportDataTable.Columns.Add("Id", typeof(long));
-            ImportDataTable.Columns.Add("Id64", typeof(long));
-            ImportDataTable.Columns.Add("Name", typeof(string));
-            ImportDataTable.Columns.Add("X", typeof(double));
-            ImportDataTable.Columns.Add("Y", typeof(double));
-            ImportDataTable.Columns.Add("Z", typeof(double));
-            ImportDataTable.Columns.Add("Date", typeof(DateTime));
+            ImportDataTable = GetDataTable(tableName);
+        }
+
+        private DataTable GetDataTable(string tableName)
+        {
+            if (tableName == "tblEDSystemsWithCoordinates")
+            {
+                var table = new DataTable(tableName);
+                table.Columns.Add("Id", typeof(long));
+                table.Columns.Add("Id64", typeof(long));
+                table.Columns.Add("Name", typeof(string));
+                table.Columns.Add("X", typeof(double));
+                table.Columns.Add("Y", typeof(double));
+                table.Columns.Add("Z", typeof(double));
+                table.Columns.Add("Date", typeof(DateTime));
+                return table;
+            }
+            else if (tableName == "tblEDStations")
+            {
+                var table = new DataTable(tableName);
+                table.Columns.Add("Id", typeof(int));
+                table.Columns.Add("MarketId", typeof(long));
+                table.Columns.Add("Type", typeof(string));
+                table.Columns.Add("Name", typeof(string));
+                table.Columns.Add("DistanceToArrival", typeof(double));
+                table.Columns.Add("Allegiance", typeof(string));
+                table.Columns.Add("Government", typeof(string));
+                table.Columns.Add("Economy", typeof(string));
+                table.Columns.Add("SecondEconomy", typeof(string));
+                table.Columns.Add("HaveMarket", typeof(bool));
+                table.Columns.Add("HaveShipyard", typeof(bool));
+                table.Columns.Add("HaveOutfitting", typeof(bool));
+                table.Columns.Add("OtherServices", typeof(string));
+                table.Columns.Add("SystemId", typeof(int));
+                table.Columns.Add("SystemId64", typeof(long));
+                table.Columns.Add("SystemName", typeof(string));
+                return table;
+            }
+
+            return null;
         }
 
         /// <summary>

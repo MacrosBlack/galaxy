@@ -42,7 +42,7 @@ namespace Downloader
                 {
                     using (var client = new WebClient())
                     {
-                        client.DownloadFile(Uri, fi.FullName);
+                        await client.DownloadFileTaskAsync(Uri, fi.FullName);
                     }
                 }
 

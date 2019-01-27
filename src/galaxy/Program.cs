@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
 
 namespace Galaxy
 {
@@ -13,17 +11,18 @@ namespace Galaxy
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        static int Main(string[] args)
+        static void Main(string[] args)
         {
+            //dbMgr.CreateDatabase("EDSystems", false);
             // SqlPackage.exe /Action:Publish /SourceFile:D:\prj\galaxy\src\EDDB\bin\Debug\eddb.dacpac /TargetConnectionString:"Data Source=(LocalDB)\EDMaster; Initial Catalog = EDSystems" /Diagnostics
             var dbMgr = new DatabaseManager(@"d:\Data\Galaxy", "tblEDSystemsWithCoordinates");
-            dbMgr.CreateDatabase("EDSystems", false);
-            var importer = new ImportManager(new BlockingCollection<EdsmSystem>(1000));
-            Task.Run(() => importer.ImportSystemsWithCoordinatesAsync());
-            Console.WriteLine("Press any key to exit");
-            Console.ReadLine();
+            var importer = new ImportManager(dbMgr);
+            importer.ImportSystemsWithCoordinates();
 
-            return 0;
+            //Task.Run(() => importer.ImportSystemsWithCoordinatesAsync());
+            //var dbMgr = new DatabaseManager(@"d:\Data\Galaxy", "tblEDStations");
+            //var importer = new ImportManager(dbMgr);
+            //importer.ImportStations();
         }
     }
 }

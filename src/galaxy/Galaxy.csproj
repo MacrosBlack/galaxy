@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseManager.cs" />
+    <Compile Include="EdsmStation.cs" />
     <Compile Include="EdsmSystem.cs" />
     <Compile Include="ImportManager.cs" />
     <Compile Include="Program.cs" />
@@ -71,6 +72,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="UpdateTime.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

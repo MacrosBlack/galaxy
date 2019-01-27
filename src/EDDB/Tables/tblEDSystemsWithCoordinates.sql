@@ -10,3 +10,10 @@
 )
 
 GO
+
+CREATE INDEX [IX_tblEDSystemsWithCoordinates_Id] ON [dbo].[tblEDSystemsWithCoordinates] ([Id])
+GO
+
+CREATE INDEX [IX_tblEDSystemsWithCoordinates_Name] ON [dbo].[tblEDSystemsWithCoordinates] ([Name])
+GO
+

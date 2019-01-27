@@ -1,44 +1,36 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Galaxy
 {
     public class ImportManager
     {
-        public BlockingCollection<EdsmSystem> Queue;
+        public DatabaseManager DatabaseManager;
         private Regex _re = new Regex(@"\((.*\))", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private long _totalRowsCopied = 0;
 
-        public ImportManager(BlockingCollection<EdsmSystem> queue)
+        public ImportManager(DatabaseManager dbMgr)
         {
-            Queue = queue;
+            DatabaseManager = dbMgr;
         }
 
-        public async void ImportSystemsWithCoordinatesAsync()
+        public void ImportSystemsWithCoordinates()
         {
-            Int64 i = 0;
+            long rowsRead = 0;
             const string SystemsWithCoordinates = @"d:\Data\Downloads\systemsWithCoordinates.json";
             Console.WriteLine("Importing systems, please wait");
             var readJsonTotal = new Stopwatch();
             var readJsonOneRow = new Stopwatch();
             var writeTotal = new Stopwatch();
             var write10Rows = new Stopwatch();
-
-            var dbMgr = new DatabaseManager(@"d:\Data\Galaxy", "tblEDSystemsWithCoordinates");
-            DatabaseManager.RowsAdded = await dbMgr.GetProgress(SystemsWithCoordinates);
-            for (int j = 1; j < 2; j++)
-            {
-                // AddWorker(j, Queue, new DatabaseManager(@"d:\Data\Galaxy", "tblEDSystemsWithCoordinates"));
-            }
-
             writeTotal.Start();
+            DatabaseManager.Batch.SqlRowsCopied += Batch_SqlRowsCopied;
             using (var sr = new StreamReader(File.OpenRead(SystemsWithCoordinates)))
             using (var jr = new JsonTextReader(sr) { CloseInput = false, SupportMultipleContent = true })
             {
@@ -52,40 +44,32 @@ namespace Galaxy
                 {
                     while (jr.Read())
                     {
-                        i++;
-                        if (i < DatabaseManager.RowsAdded)
-                        {
-                            continue;
-                        }
-
+                        rowsRead++;
                         var sys = serializer.Deserialize<EdsmSystem>(jr);
-                        dbMgr.ImportDataTable.Rows.Add(sys.Id, sys.Id64, sys.Name, sys.Coords.Value.X, sys.Coords.Value.Y, sys.Coords.Value.Z, sys.Date);
-                        if (dbMgr.ImportDataTable.Rows.Count > 500)
+                        DatabaseManager.ImportDataTable.Rows.Add(sys.Id, sys.Id64, sys.Name, sys.Coords.Value.X, sys.Coords.Value.Y, sys.Coords.Value.Z, sys.Date);
+                        DatabaseManager.ImportDataTable.AcceptChanges();
+                        if (DatabaseManager.ImportDataTable.Rows.Count > 1000)
                         {
-                            dbMgr.ImportDataTable.AcceptChanges();
                             try
                             {
-                                await dbMgr.Batch.WriteToServerAsync(dbMgr.ImportDataTable);
+                                DatabaseManager.Batch.WriteToServer(DatabaseManager.ImportDataTable);
                             }
                             catch (SqlException ex)
                             {
                                 Console.WriteLine(ex.Message);
-                                var name = GetSystemName(ex.Message);
-                                duplicates.Add(dbMgr.ImportDataTable.Rows.Find(name));
-
                             }
                             catch (Exception ex)
                             {
                                 Console.WriteLine(ex.Message);
                             }
 
-                            dbMgr.ImportDataTable.Rows.Clear();
+                            DatabaseManager.ImportDataTable.Rows.Clear();
                         }
 
-                        if (DatabaseManager.RowsAdded % 10000 == 0 && DatabaseManager.RowsAdded > 0)
+                        if (rowsRead % 10000 == 0 && rowsRead > 0)
                         {
-                            await dbMgr.UpdateProgress(SystemsWithCoordinates, DatabaseManager.RowsAdded);
-                            Console.WriteLine($"{i} rows added");
+                            Console.WriteLine($"{rowsRead} rows read");
+                            Console.WriteLine($"{_totalRowsCopied} rows copied");
                         }
                     }
                 }
@@ -99,29 +83,115 @@ namespace Galaxy
 
                 writeTotal.Stop();
                 Console.WriteLine($"Total import time:{writeTotal.ElapsedMilliseconds}ms");
+
+                Console.WriteLine($"Rows read:{rowsRead}");
+                Console.WriteLine($"Rows copied:{_totalRowsCopied}");
+            }
+        }
+
+        private void Batch_SqlRowsCopied(object sender, SqlRowsCopiedEventArgs e)
+        {
+            _totalRowsCopied += e.RowsCopied;
+        }
+
+        public void ImportStations()
+        {
+            Int64 i = 0;
+            const string SystemsWithCoordinates = @"d:\Data\Downloads\Stations.json";
+            Console.WriteLine("Importing systems, please wait");
+            var readJsonTotal = new Stopwatch();
+            var readJsonOneRow = new Stopwatch();
+            var writeTotal = new Stopwatch();
+            var write10Rows = new Stopwatch();
+            long rowsDeserialized = 0;
+            long rowsWritten = 0;
+            long rowsWithErrors = 0;
+
+            writeTotal.Start();
+            using (var sr = new StreamReader(File.OpenRead(SystemsWithCoordinates)))
+            using (var jr = new JsonTextReader(sr) { CloseInput = false, SupportMultipleContent = true })
+            {
+                readJsonTotal.Start();
+                writeTotal.Start();
+                var serializer = new JsonSerializer();
+                sr.ReadLine();
+                var duplicates = new List<DataRow>();
+                var jsonDuplicates = new List<EdsmStation>();
+                try
+                {
+                    while (jr.Read())
+                    {
+                        i++;
+                        //if (i < DatabaseManager.RowsAdded)
+                        //{
+                        //    continue;
+                        //}
+
+                        var station = serializer.Deserialize<EdsmStation>(jr);
+                        rowsDeserialized++;
+                        Console.WriteLine(station.SystemName);
+                        if (station.Name != "Levchenko Enterprise")
+                        {
+                            continue;
+                        }
+
+                        DatabaseManager.ImportDataTable.Rows.Add(station.Id, station.MarketId, station.Type, station.Name, station.DistanceToArrival, station.Allegiance, station.Government, station.Economy, station.SecondEconomy, station.HaveMarket, station.HaveShipyard, station.HaveOutfitting, station.OtherServices, station.SystemId, station.SystemId64, station.SystemName);
+                        DatabaseManager.ImportDataTable.AcceptChanges();
+                        if (DatabaseManager.ImportDataTable.Rows.Count > 500)
+                        {
+                            try
+                            {
+                                DatabaseManager.Batch.WriteToServer(DatabaseManager.ImportDataTable);
+                            }
+                            catch (SqlException ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                            }
+
+                            rowsWritten += DatabaseManager.ImportDataTable.Rows.Count;
+                            var errorRows = DatabaseManager.ImportDataTable.GetErrors();
+                            rowsWithErrors += errorRows.Length;
+                            DatabaseManager.ImportDataTable.Rows.Clear();
+                        }
+                    }
+                }
+                catch (JsonReaderException ex)
+                {
+                    if (jr.TokenType == JsonToken.EndArray)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                if (DatabaseManager.ImportDataTable.Rows.Count > 0)
+                {
+                    DatabaseManager.Batch.WriteToServer(DatabaseManager.ImportDataTable);
+                }
+
+                Console.WriteLine($"{rowsDeserialized} rows deserialized");
+                Console.WriteLine($"{rowsWithErrors} rows had errors");
+                //Console.WriteLine("Shrinking the database, this could take a while");
+                //using (var command = new SqlCommand())
+                //{
+                //    command.CommandText = "ALTER DATABASE EDSystems SET RECOVERY SIMPLE; DBCC SHRINKFILE(EDSystems, 1); SET RECOVERY FULL WITH ROLLBACK IMMEDIATE";
+                //    command.CommandTimeout = (int)TimeSpan.FromMinutes(15).TotalMinutes;
+                //    command.CommandType = CommandType.Text;
+                //    command.ExecuteNonQuery();
+                //}
             }
         }
 
         private object GetSystemName(string message)
         {
             return _re.Match(message).Groups[1].Value;
-        }
-
-        private void AddWorker(int workerId, BlockingCollection<EdsmSystem> queue, DatabaseManager dbMgr)
-        {
-            Task.Factory.StartNew(async () =>
-            {
-                foreach (var sys in queue.GetConsumingEnumerable())
-                {
-                    dbMgr.ImportDataTable.Rows.Add(sys.Id, sys.Id64, sys.Name, sys.Coords.Value.X, sys.Coords.Value.Y, sys.Coords.Value.Z, sys.Date);
-                    if (dbMgr.ImportDataTable.Rows.Count > 50)
-                    {
-                        dbMgr.ImportDataTable.AcceptChanges();
-                        await dbMgr.Batch.WriteToServerAsync(dbMgr.ImportDataTable);
-                        dbMgr.ImportDataTable.Rows.Clear();
-                    }
-                }
-            }, TaskCreationOptions.LongRunning);
         }
     }
 }

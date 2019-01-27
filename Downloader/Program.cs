@@ -6,13 +6,20 @@ namespace Downloader
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             const string downloadFolder = @"d:\Data\Downloads";
             var dt = new DownloadTask(downloadFolder, new Uri("https://www.edsm.net/dump/systemsWithCoordinates.json"));
-            var dtTask = Task.Run<FileInfo>(() => dt.DownloadAsync());
-            dtTask.Wait();
-            var fi = dtTask.Result;
+            var task = Task.Run<FileInfo>(async () => await dt.DownloadAsync());
+            task.Wait();
+            var fi = task.Result;
+
+            dt = new DownloadTask(downloadFolder, new Uri("https://www.edsm.net/dump/stations.json"));
+            task = Task.Run<FileInfo>(async () => await dt.DownloadAsync());
+            task.Wait();
+            fi = task.Result;
+
+            return 0;
         }
     }
 }
