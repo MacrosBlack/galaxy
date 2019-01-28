@@ -9,15 +9,20 @@ namespace Downloader
         static int Main(string[] args)
         {
             const string downloadFolder = @"d:\Data\Downloads";
-            var dt = new DownloadTask(downloadFolder, new Uri("https://www.edsm.net/dump/systemsWithCoordinates.json"));
+            //var dt = new DownloadTask(downloadFolder, new Uri("https://www.edsm.net/dump/systemsWithCoordinates.json"));
+            //var task = Task.Run<FileInfo>(async () => await dt.DownloadAsync());
+            //task.Wait();
+            //var fi = task.Result;
+
+            //dt = new DownloadTask(downloadFolder, new Uri("https://www.edsm.net/dump/stations.json"));
+            //task = Task.Run<FileInfo>(async () => await dt.DownloadAsync());
+            //task.Wait();
+            //fi = task.Result;
+
+            var dt = new DownloadTask(downloadFolder, new Uri("https://www.edsm.net/dump/bodies.json"));
             var task = Task.Run<FileInfo>(async () => await dt.DownloadAsync());
             task.Wait();
             var fi = task.Result;
-
-            dt = new DownloadTask(downloadFolder, new Uri("https://www.edsm.net/dump/stations.json"));
-            task = Task.Run<FileInfo>(async () => await dt.DownloadAsync());
-            task.Wait();
-            fi = task.Result;
 
             return 0;
         }

@@ -62,8 +62,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseManager.cs" />
-    <Compile Include="EdsmStation.cs" />
-    <Compile Include="EdsmSystem.cs" />
+    <Compile Include="Edsm\EdsmBody.cs" />
+    <Compile Include="Edsm\EdsmDiscovery.cs" />
+    <Compile Include="Edsm\EdsmParents.cs" />
+    <Compile Include="Edsm\EdsmStation.cs" />
+    <Compile Include="Edsm\EdsmSystem.cs" />
     <Compile Include="ImportManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
