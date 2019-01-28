@@ -2,10 +2,10 @@
 (
 	[Id] INT NOT NULL, 
     [MarketId] BIGINT NULL, 
-    [Type] VARCHAR(20) NOT NULL, 
+    [Type] VARCHAR(20) NULL, 
     [Name] VARCHAR(40) NOT NULL, 
-    [DistanceToArrival] DECIMAL(18, 4) NOT NULL, 
-    [Allegiance] VARCHAR(20) NOT NULL, 
+    [DistanceToArrival] DECIMAL(18, 4) NULL, 
+    [Allegiance] VARCHAR(20) NULL, 
     [Goverment] VARCHAR(20) NULL, 
     [Economy] VARCHAR(20) NULL, 
     [SecondEconomy] VARCHAR(20) NULL, 

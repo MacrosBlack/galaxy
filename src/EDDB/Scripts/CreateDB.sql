@@ -5,9 +5,9 @@ GO
 CREATE DATABASE [EDSystems]
  CONTAINMENT = NONE
  ON  PRIMARY 
-( NAME = N'EDSystems', FILENAME = N'd:\Data\Galaxy\EDSystems.mdf' , SIZE = 300MB , MAXSIZE = 1000MB , FILEGROWTH = 50%)
+( NAME = N'EDSystems', FILENAME = N'd:\Data\Galaxy\EDSystems.mdf' , SIZE = 6000MB , MAXSIZE = 1000MB , FILEGROWTH = 50%)
  LOG ON 
-( NAME = N'EDSystems_Log', FILENAME = N'd:\Data\Galaxy\EDSystems.ldf' , SIZE = 300MB , MAXSIZE = 2000MB , FILEGROWTH = 20%)
+( NAME = N'EDSystems_Log', FILENAME = N'd:\Data\Galaxy\EDSystems.ldf' , SIZE = 1300MB , MAXSIZE = 2000MB , FILEGROWTH = 20%)
 
 
 ALTER DATABASE [EDSystems] SET COMPATIBILITY_LEVEL = 130

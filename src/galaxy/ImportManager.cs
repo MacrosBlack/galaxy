@@ -20,7 +20,7 @@ namespace Galaxy
             DatabaseManager = dbMgr;
         }
 
-        public void ImportSystemsWithCoordinates()
+        public HashSet<int> ImportSystemsWithCoordinates(HashSet<int> existingRows)
         {
             long rowsRead = 0;
             const string SystemsWithCoordinates = @"d:\Data\Downloads\systemsWithCoordinates.json";
@@ -30,7 +30,7 @@ namespace Galaxy
             var writeTotal = new Stopwatch();
             var write10Rows = new Stopwatch();
             writeTotal.Start();
-            DatabaseManager.Batch.SqlRowsCopied += Batch_SqlRowsCopied;
+            var ids = new HashSet<int>();
             using (var sr = new StreamReader(File.OpenRead(SystemsWithCoordinates)))
             using (var jr = new JsonTextReader(sr) { CloseInput = false, SupportMultipleContent = true })
             {
@@ -46,6 +46,13 @@ namespace Galaxy
                     {
                         rowsRead++;
                         var sys = serializer.Deserialize<EdsmSystem>(jr);
+                        var hashCode = $"{sys.Id}_{sys.Name}".GetHashCode();
+                        ids.Add(hashCode);
+                        if (existingRows.Contains(hashCode))
+                        {
+                            continue;
+                        }
+
                         DatabaseManager.ImportDataTable.Rows.Add(sys.Id, sys.Id64, sys.Name, sys.Coords.Value.X, sys.Coords.Value.Y, sys.Coords.Value.Z, sys.Date);
                         DatabaseManager.ImportDataTable.AcceptChanges();
                         if (DatabaseManager.ImportDataTable.Rows.Count > 1000)
@@ -69,7 +76,6 @@ namespace Galaxy
                         if (rowsRead % 10000 == 0 && rowsRead > 0)
                         {
                             Console.WriteLine($"{rowsRead} rows read");
-                            Console.WriteLine($"{_totalRowsCopied} rows copied");
                         }
                     }
                 }
@@ -81,11 +87,16 @@ namespace Galaxy
                     }
                 }
 
+                if (DatabaseManager.ImportDataTable.Rows.Count > 0)
+                {
+                    DatabaseManager.Batch.WriteToServer(DatabaseManager.ImportDataTable);
+                }
+
                 writeTotal.Stop();
                 Console.WriteLine($"Total import time:{writeTotal.ElapsedMilliseconds}ms");
 
                 Console.WriteLine($"Rows read:{rowsRead}");
-                Console.WriteLine($"Rows copied:{_totalRowsCopied}");
+                return ids;
             }
         }
 
@@ -121,20 +132,8 @@ namespace Galaxy
                 {
                     while (jr.Read())
                     {
-                        i++;
-                        //if (i < DatabaseManager.RowsAdded)
-                        //{
-                        //    continue;
-                        //}
-
                         var station = serializer.Deserialize<EdsmStation>(jr);
                         rowsDeserialized++;
-                        Console.WriteLine(station.SystemName);
-                        if (station.Name != "Levchenko Enterprise")
-                        {
-                            continue;
-                        }
-
                         DatabaseManager.ImportDataTable.Rows.Add(station.Id, station.MarketId, station.Type, station.Name, station.DistanceToArrival, station.Allegiance, station.Government, station.Economy, station.SecondEconomy, station.HaveMarket, station.HaveShipyard, station.HaveOutfitting, station.OtherServices, station.SystemId, station.SystemId64, station.SystemName);
                         DatabaseManager.ImportDataTable.AcceptChanges();
                         if (DatabaseManager.ImportDataTable.Rows.Count > 500)

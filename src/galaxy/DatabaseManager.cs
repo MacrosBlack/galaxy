@@ -182,27 +182,26 @@ namespace Galaxy
             }
         }
 
-        public async Task<HashSet<int>> GetAllNamesAsHashCodeAsync(DatabaseManager dbMgr)
+        public HashSet<int> GetAllNamesAsHashCode()
         {
             var ids = new HashSet<int>();
-            using (var command = new SqlCommand("SELECT [Name] FROM [dbo].[tblEDSystemsWithCoordinates] WITH (NOLOCK)", dbMgr.Connection))
+            long rowsRead = 0;
+            using (var command = new SqlCommand("SELECT [Id],[Name] FROM [dbo].[tblEDSystemsWithCoordinates] WITH (NOLOCK)", Connection))
             {
                 command.CommandType = CommandType.Text;
-                using (var reader = await command.ExecuteReaderAsync())
+                using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        var hashCode = ((IDataRecord)reader).GetString(0).GetHashCode();
-                        if (ids.Contains(hashCode))
-                        {
-                            continue;
-                        }
-
-                        ids.Add(hashCode);
+                        rowsRead++;
+                        var id = (int)((IDataRecord)reader)["Id"];
+                        var name = (string)((IDataReader)reader)["Name"];
+                        ids.Add($"{id}_{name}".GetHashCode());
                     }
                 }
             }
 
+            Console.WriteLine($"rowsRead:{rowsRead} HashRows:{ids.Count}");
             return ids;
         }
 
