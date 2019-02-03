@@ -61,6 +61,7 @@
     <Folder Include="Tables" />
     <Folder Include="StoredProcedures" />
     <Folder Include="Scripts" />
+    <Folder Include="Views" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\tblEDSystemsWithCoordinates.sql" />
@@ -73,6 +74,11 @@
       <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
     </None>
     <Build Include="Tables\tblEDStations.sql" />
+    <Build Include="Tables\tblEDBody.sql" />
+    <None Include="Scripts\CreateDB_ED_Body1.sql">
+      <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
+    </None>
+    <Build Include="Views\vwStationSystem.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="EDDB.refactorlog" />

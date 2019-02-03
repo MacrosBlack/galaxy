@@ -15,5 +15,18 @@
     [OtherServices] VARCHAR(50) NOT NULL, 
     [SystemId] INT NOT NULL, 
     [SystemId64] BIGINT NOT NULL, 
-    [SystemName] VARCHAR(50) NOT NULL 
+    [SystemName] VARCHAR(50) NOT NULL DEFAULT 0, 
+    [Restock] BIT NOT NULL DEFAULT 0, 
+    [Refuel] BIT NOT NULL DEFAULT 0, 
+    [Repair] BIT NOT NULL DEFAULT 0, 
+    [Contacts] BIT NOT NULL DEFAULT 0, 
+    [UniversalCartographics] BIT NOT NULL DEFAULT 0, 
+    [Missions] BIT NOT NULL DEFAULT 0, 
+    [CrewLounge] BIT NOT NULL DEFAULT 0, 
+    [Tuning] BIT NOT NULL DEFAULT 0, 
+    [SearchandRescue] BIT NOT NULL DEFAULT 0, 
+    [BlackMarket] BIT NOT NULL DEFAULT 0, 
+    [InterstellarFactorsContact] BIT NOT NULL DEFAULT 0, 
+    [MaterialTrader] BIT NOT NULL DEFAULT 0, 
+    [TechnologyBroker] BIT NOT NULL DEFAULT 0 
 )

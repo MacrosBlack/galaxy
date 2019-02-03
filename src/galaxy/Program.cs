@@ -16,48 +16,52 @@ namespace Galaxy
         /// <returns></returns>
         static void Main(string[] args)
         {
-            //dbMgr.CreateDatabase("EDSystems", false);
+            //using (var dbMgr = new DatabaseManager(@"d:\Data\Galaxy", "tblEDStations"))
+            //{
+            //    dbMgr.CreateDatabase("ED_Body4", false);
+            //}
+
+
             // SqlPackage.exe /Action:Publish /SourceFile:D:\prj\galaxy\src\EDDB\bin\Debug\eddb.dacpac /TargetConnectionString:"Data Source=(LocalDB)\EDMaster; Initial Catalog = EDSystems" /Diagnostics
 
-            using (var dbMgr = new DatabaseManager(@"d:\Data\Galaxy", "tblEDStations"))
-            {
-                var importer = new ImportManager(dbMgr);
-                importer.ImportStations();
-            }
+            //using (var dbMgr = new DatabaseManager(@"d:\Data\Galaxy", "tblEDStations"))
+            //{
+            //    var importer = new ImportManager(dbMgr);
+            //    importer.ImportBodies();
+            //}
 
-            return;
+            //HashSet<int> readSystems;
+            //HashSet<int> writtenSystems;
+            //HashSet<int> existingSystems;
+            //using (var dbMgr = new DatabaseManager(@"d:\Data\Galaxy", "tblEDSystemsWithCoordinates"))
+            //{
+            //    var importer = new ImportManager(dbMgr);
+            //    existingSystems = dbMgr.GetAllNamesAsHashCode();
+            //    Console.WriteLine($"{existingSystems.Count} existing rows read from the database");
+            //    readSystems = importer.ImportSystemsWithCoordinates(existingSystems);
+            //    Console.WriteLine($"{readSystems.Count} read from the json file");
+            //    writtenSystems= dbMgr.GetAllNamesAsHashCode();
+            //}
 
-            HashSet<int> readSystems;
-            HashSet<int> writtenSystems;
-            HashSet<int> existingSystems;
-            using (var dbMgr = new DatabaseManager(@"d:\Data\Galaxy", "tblEDSystemsWithCoordinates"))
-            {
-                var importer = new ImportManager(dbMgr);
-                existingSystems = dbMgr.GetAllNamesAsHashCode();
-                Console.WriteLine($"{existingSystems.Count} existing rows read from the database");
-                readSystems = importer.ImportSystemsWithCoordinates(existingSystems);
-                Console.WriteLine($"{readSystems.Count} read from the json file");
-                writtenSystems= dbMgr.GetAllNamesAsHashCode();
-            }
-
-            Console.WriteLine($"{writtenSystems.Count} were written");
-            readSystems.ExceptWith(writtenSystems);
-            Console.WriteLine($"{readSystems.Count} was not imported");
-            if (readSystems.Count > 0)
-            {
-                using (var stream = new StreamWriter("NotImportedSystems.txt"))
-                {
-                    foreach(var system in readSystems)
-                    {
-                        stream.Write(system);
-                    }
-                }
-            }
+            //Console.WriteLine($"{writtenSystems.Count} were written");
+            //readSystems.ExceptWith(writtenSystems);
+            //Console.WriteLine($"{readSystems.Count} was not imported");
+            //if (readSystems.Count > 0)
+            //{
+            //    using (var stream = new StreamWriter("NotImportedSystems.txt"))
+            //    {
+            //        foreach(var system in readSystems)
+            //        {
+            //            stream.Write(system);
+            //        }
+            //    }
+            //}
 
             //Task.Run(() => importer.ImportSystemsWithCoordinatesAsync());
-            //var dbMgr = new DatabaseManager(@"d:\Data\Galaxy", "tblEDStations");
-            //var importer = new ImportManager(dbMgr);
-            //importer.ImportStations();
+
+            var dbMgr = new DatabaseManager(@"d:\Data\Galaxy", "tblEDStations");
+            var importer = new ImportManager(dbMgr);
+            importer.ImportStations();
         }
     }
 }

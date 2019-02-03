@@ -32,7 +32,7 @@ namespace Galaxy
             ImportDataTable = GetDataTable(tableName);
         }
 
-        private DataTable GetDataTable(string tableName)
+        public DataTable GetDataTable(string tableName)
         {
             if (tableName == "tblEDSystemsWithCoordinates")
             {
@@ -62,6 +62,34 @@ namespace Galaxy
                 table.Columns.Add("HaveShipyard", typeof(bool));
                 table.Columns.Add("HaveOutfitting", typeof(bool));
                 table.Columns.Add("OtherServices", typeof(string));
+                table.Columns.Add("SystemId", typeof(int));
+                table.Columns.Add("SystemId64", typeof(long));
+                table.Columns.Add("SystemName", typeof(string));
+                table.Columns.Add("Restock", typeof(bool));
+                table.Columns.Add("Refuel", typeof(bool));
+                table.Columns.Add("Repair", typeof(bool));
+                table.Columns.Add("Contacts", typeof(bool));
+                table.Columns.Add("UniversalCartographics", typeof(bool));
+                table.Columns.Add("Missions", typeof(bool));
+                table.Columns.Add("CrewLounge", typeof(bool));
+                table.Columns.Add("Tuning", typeof(bool));
+                table.Columns.Add("SearchandRescue", typeof(bool));
+                table.Columns.Add("BlackMarket", typeof(bool));
+                table.Columns.Add("InterstellarFactorsContact", typeof(bool));
+                table.Columns.Add("MaterialTrader", typeof(bool));
+                table.Columns.Add("TechnologyBroker", typeof(bool));
+
+                return table;
+            }
+            else if (tableName == "tblEDBody")
+            {
+                var table = new DataTable(tableName);
+                table.Columns.Add("Id", typeof(int));
+                table.Columns.Add("Id64", typeof(long));
+                table.Columns.Add("BodyId", typeof(int));
+                table.Columns.Add("Name", typeof(string));
+                table.Columns.Add("Type", typeof(string));
+                table.Columns.Add("SubType", typeof(string));
                 table.Columns.Add("SystemId", typeof(int));
                 table.Columns.Add("SystemId64", typeof(long));
                 table.Columns.Add("SystemName", typeof(string));
